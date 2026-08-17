@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.vit.demo'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'com.vit.demo.App'
+}
+
+// Disable Gradle's default JUnit/TestNG test discovery.
+// Our practical uses AppTest.java as a simple Java test program.
+test {
+    enabled = false
+}
+
+// Run the demonstration test program.
+tasks.register('testDemo', JavaExec) {
+    group = 'verification'
+    description = 'Runs the CI demonstration test'
+
+    dependsOn tasks.named('testClasses')
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.vit.demo.AppTest'
+}
+
+// Make the normal Gradle build execute our demonstration test.
+tasks.named('build') {
+    dependsOn tasks.named('testDemo')
+}
+
+// Create the application JAR.
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.vit.demo.App'
+        )
+    }
+}
