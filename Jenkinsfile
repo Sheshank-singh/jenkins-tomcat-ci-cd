@@ -44,11 +44,22 @@ pipeline {
 
         stage('Verify') {
             steps {
-                bat '''
-                    powershell -Command ^
-                    "$response = Invoke-WebRequest -Uri 'http://localhost:8081/jenkins-demo/' -UseBasicParsing; ^
-                    if ($response.StatusCode -ne 200) { exit 1 }; ^
-                    Write-Host 'Application verification successful. HTTP Status:' $response.StatusCode"
+                powershell '''
+                    try {
+                        $response = Invoke-WebRequest -Uri "http://localhost:8081/jenkins-demo/" -UseBasicParsing
+
+                        Write-Host "Application verification successful."
+                        Write-Host "HTTP Status: $($response.StatusCode)"
+
+                        if ($response.StatusCode -ne 200) {
+                            exit 1
+                        }
+                    }
+                    catch {
+                        Write-Error "Application verification failed."
+                        Write-Error $_
+                        exit 1
+                    }
                 '''
             }
         }
